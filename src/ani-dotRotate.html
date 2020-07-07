@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <style>
+        #canvas {
+            background: #000;
+        }
+    </style>
+    <canvas id='canvas' width='1000' height='400'></canvas>
+    <script>
+        function Rotate(element) {
+            var canvas = document.getElementById(element);
+            var ctx = canvas.getContext('2d');
+            let dots = generateDots();
+
+            animate();
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                dots = dots.reduce((pre, next) => {
+                    if (true) {
+                        next.angle += 0.01;
+                        next.dx = next.x*Math.cos(next.angle) - next.y*Math.sin(next.angle) - canvas.width/2;
+                        next.dy = next.y*Math.cos(next.angle) + next.x*Math.sin(next.angle) - canvas.height/2;
+                        next.radius = next.radius;
+                        next.draw(ctx);
+                        pre.push(next)
+                    }
+                    return pre;
+                }, [])
+                requestAnimationFrame(animate);
+            }
+
+            function Dot(x, y, z, radius, color, angle) {
+                this.x = x; //初始的位置
+                this.y = y;
+                this.z = z;
+                this.dx = x - canvas.width/2; // 旋转后的位置
+                this.dy = y - canvas.height/2;
+                this.dz = z;
+                this.radius = radius;
+                this.color = color;
+                this.angle = angle; //转动的角度
+                this.draw = function (ctx) {
+                    ctx.beginPath()
+                    ctx.save();
+                    ctx.fillStyle = this.color;
+                    ctx.arc(this.dx, this.dy, this.radius, 0, Math.PI * 2)
+                    ctx.fill();
+                    ctx.restore();
+                }
+            }
+            function generateDots() {
+                let dots = [];
+                for (let i = 0; i < 100; i++) {
+                    dots.push(new Dot(
+                        Math.random() * canvas.width,
+                        Math.random() * canvas.height,
+                        0,
+                        Math.random() * 5 + 1,
+                        `rgba(${Math.random() * 255},${Math.random() * 255},${Math.random() * 255},${Math.random()})`,
+                        0
+                    ))
+                }
+                return dots;
+            }
+        }
+        new Rotate('canvas');
+    </script>
+</body>
+
+</html>

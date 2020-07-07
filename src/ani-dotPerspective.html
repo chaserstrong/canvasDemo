@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<style>
+    #canvas {
+        background: #000;
+    }
+</style>
+
+<body>
+    <canvas id='canvas' width='300' height='500'></canvas>
+    <script>
+        window.onload = function () {
+            var canvas = document.getElementById('canvas');
+            var ctx = canvas.getContext('2d');
+            let dots = generateDot(ctx);
+            dots.forEach((item) => {
+                item.draw(ctx);
+            })
+
+            animate();
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                dots = dots.reduce((pre, next) => {
+                    if (next.options.x > canvas.width ||
+                        next.options.x < 0 ||
+                        next.options.y > canvas.height ||
+                        next.options.y < 0 ||
+                        next.options.createTime < +new Date()-10*1000) {
+                        pre.push(new Dot(
+                            Math.random() * canvas.width,
+                            Math.random() * canvas.height,
+                            Math.random() * 5 + 1,
+                            `rgba(${Math.random() * 255},${Math.random() * 255},${Math.random() * 255},${Math.random()})`
+                        ))
+                    } else {
+                        next.options.x = next.options.x + 0.005 * next.options.dx;
+                        next.options.y = next.options.y + 0.005 * next.options.dy;
+                        next.options.radius = next.options.radius + 0.01;
+                        next.draw(ctx);
+                        pre.push(next);
+                    }
+                    return pre;
+                }, [])
+                requestAnimationFrame(animate);
+            }
+
+        }
+        var Dot = function (x, y, radius, color) {
+            let dx = x - canvas.width / 2;
+            let dy = y - canvas.height / 2;
+            this.options = {
+                dx: dx, //相对位置
+                dy: dy,
+                x: x, //真实位置
+                y: y,
+                radius: radius,
+                color: color,
+                createTime: +new Date()
+            };
+        }
+        Dot.prototype = {
+            draw: function (ctx) {
+                let {x, y, radius, color} = this.options;
+                ctx.save();
+                ctx.beginPath();
+                ctx.fillStyle = color;
+                ctx.arc(x, y, radius, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        function generateDot() {
+            let dots = [];
+            for (let i = 0; i < 100; i++) {
+                dots.push(new Dot(
+                    Math.random() * canvas.width,
+                    Math.random() * canvas.height,
+                    Math.random() * 5 + 1,
+                    `rgba(${Math.random() * 255},${Math.random() * 255},${Math.random() * 255},${Math.random()})`
+                ))
+            }
+            return dots;
+        }
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <style>
+        #canvas {
+            background: pink;
+        }
+    </style>
+    <canvas id='canvas' width='1000' height='400'></canvas>
+    <script>
+        function CustomText(font, element) {
+            this.canvas = document.getElementById(element);
+            this.ctx = canvas.getContext('2d');
+            this.font = font;
+            this.init();
+        }
+        CustomText.prototype.drawFont = function () {
+            this.ctx.save();
+            this.ctx.font = "200px 微软雅黑 bold";
+            this.ctx.fillStyle = "rgba(255,0,0,1)";
+            this.ctx.textAlign = "center";
+            this.ctx.textBaseline = "middle";
+            this.ctx.fillText(this.font, this.canvas.width / 2, this.canvas.height / 2);
+            this.ctx.restore();
+        }
+        CustomText.prototype.getImageData = function () {
+            return this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+        }
+        CustomText.prototype.reverseFontColor = function () {
+            this.imageData = this.getImageData();
+            // this.ctx.clearRect(0,0,this.canvas.width, this.canvas.height);
+            for (let i = 0; i < this.imageData.height; i++) {
+                for (let j = 0; j < this.imageData.width; j++) {
+                    if (this.imageData.data[(i * this.imageData.width + j) * 4 + 3] > 0) {
+                        this.imageData.data[(i * this.imageData.width + j) * 4 + 0] = 255 - this.imageData.data[(i * this.imageData.width + j) * 4 + 0];
+                        this.imageData.data[(i * this.imageData.width + j) * 4 + 1] = 255 - this.imageData.data[(i * this.imageData.width + j) * 4 + 1];
+                        this.imageData.data[(i * this.imageData.width + j) * 4 + 2] = 255 - this.imageData.data[(i * this.imageData.width + j) * 4 + 2];
+                        this.imageData.data[i * this.imageData.width + j + 3];
+                    }
+                }
+            }
+            this.ctx.putImageData(this.imageData, 0, 0, 0, 0, this.imageData.width, this.imageData.height)
+        }
+        CustomText.prototype.fontDot = function () {
+            this.imageData = this.getImageData();
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            let dots = [];
+            for (let i = 0; i < this.imageData.height; i +=  8 ) {
+                for (let j = 0; j < this.imageData.width; j += 8 ) {
+                    if (this.imageData.data[(i * this.imageData.width + j) * 4 + 3] > 0) {
+                        // this.imageData.data[(i*this.imageData.width+j)*4+0] = 255 - this.imageData.data[(i*this.imageData.width+j)*4+0];
+                        // this.imageData.data[(i*this.imageData.width+j)*4+1] = 255 - this.imageData.data[(i*this.imageData.width+j)*4+1];
+                        // this.imageData.data[(i*this.imageData.width+j)*4+2] = 255 - this.imageData.data[(i*this.imageData.width+j)*4+2];
+                        // this.imageData.data[i*this.imageData.width+j+3];
+                        new Dot(j, i, 4, 'grey', this.ctx).draw();
+                    }
+                }
+            }
+        }
+        CustomText.prototype.init = function () {
+            this.drawFont();
+            this.fontDot();
+        }
+        function Dot(x, y, radius, color, ctx) {
+            this.x = x;
+            this.y = y;
+            this.color = color;
+            this.radius = radius;
+            this.ctx = ctx;
+        }
+        Dot.prototype.draw = function () {
+            this.ctx.save();
+            this.ctx.beginPath();
+            this.ctx.fillStyle = `rgba(${Math.random()*255},${Math.random()*255},${Math.random()*255},${Math.random()*255})`;
+            this.ctx.arc(this.x-this.radius/2, this.y-this.radius/2, this.radius, 0, Math.PI * 2);
+            // this.ctx.rect(this.x-this.radius/2, this.y-this.radius/2, this.radius, this.radius);
+            this.ctx.fill();
+            this.ctx.restore();
+        }
+        new CustomText("yok", "canvas");
+    </script>
+</body>
+
+</html>
